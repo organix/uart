@@ -58,11 +58,10 @@ consists of at least these critical components:
  * The code constituting the Behavior of the actor
  * The data constituting the State (if any) parameterizing the Behavior
  * The unique identity of the actor
+
 Note that these may, in fact, all be components of a composite Event.
-```
     Event
     +-- Sponsor
     +-- Message
     +-- Actor
         +-- Behavior
-```
