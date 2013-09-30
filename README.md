@@ -23,10 +23,10 @@ a _Sponsor_ for an actor computation.
 We observe that all actor computation occurs 
 in the context of receiving an _Event_.
 It seems logical the the Sponsor for a computation 
-should either *be* the Event or be *reachable through* the Event.
+should either **be** the Event or be **reachable through** the Event.
 Thus, the Event provides the context for a computation.
 
-Each Create action produces a new uniquly identifiable actor.
+Each Create action produces a new uniquely identifiable actor.
 We use a distinct memory address to identify each actor, 
 assuming a memory-safe computational environment 
 to maintain the security of each actor.
@@ -46,22 +46,59 @@ rather a "subroutine" call and return.
 An actor behavior executes as an "atomic" transaction.
 The behavior indicates completion 
 by simply jumping back to the kernel.
-We expect to have separate kernel addresses 
+We expect to have separate jump addresses 
 to distinguish between successful completion 
 and signaling some kind of exception.
 
 The execution environment for an actor's behavior 
 consists of at least these critical components:
  * The unique Event being delivered and processed
- * The Sponsor that controls resources available during processing
- * The data constituting the Message to be delivered
+ * The unique identity of the target actor
  * The code constituting the Behavior of the actor
  * The data constituting the State (if any) parameterizing the Behavior
- * The unique identity of the actor
+ * The data constituting the Message to be delivered
+ * The Sponsor that controls resources available during processing
 
 Note that these may, in fact, all be components of a composite Event.
+
     Event
-    +-- Sponsor
+    +-> Sponsor
+    +-> Actor
+    |   +-- Behavior
     +-- Message
-    +-- Actor
-        +-- Behavior
+
+Each Send action produces a new uniquely identifiable Event
+with a specified Message and a target actor address.
+The same actor may (of course) be the target of several Events,
+thus the actor must be _referenced_, not _contained_, by the Event.
+The Sponsor is also likely to be shared, and therefore referenced.
+
+An important distinction can be made between actors (as described above)
+and value-actors.  Value-actors, or simply _Values_, do not have
+distinct identities.  They represent immutable values.  They may be
+duplicated and/or locally recreated when crossing memory domains.
+This is an important optimization because it avoids having to route messages 
+back the "the original" in cases where the behavior of the local value
+is indistinguishable from any/all other copies.  Values are still actors,
+in the sense that they can receive messages.  However, 
+they cannot use the _Become_ primitive, so their behavior never changes.
+
+Within a memory domain, 
+only one actor can occupy a particular address.
+This implies that we can determine matching actor identities 
+by simply comparing memory addresses.
+We can extend this to a small set of pre-defined Values 
+by encoding them directly in the bits of a "pointer".
+These are effectively synthetic actor addresses.
+The type of the value (and thus it's immutable behavior) 
+and the value itself are both encoded in the address.
+
+The main resource controlled by the _Sponsor_ is memory.
+Since each Send and each Create consumes memory, 
+an actor cannot get very much work done 
+without support from a Sponsor.
+We anticipate some sort of "watch-dog" timer
+to prevent run-away CPU consumption,
+but expect most behaviors to be well-behaved 
+by virtue of having been created by a trusted compiler
+and working within a resource-safe language.
