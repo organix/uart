@@ -102,3 +102,33 @@ to prevent run-away CPU consumption,
 but expect most behaviors to be well-behaved 
 by virtue of having been created by a trusted compiler
 and working within a resource-safe language.
+
+## Bit-Stream Transport
+
+Communication between memory domains 
+is accomplished through reading and writing bit-streams.
+[_Cap'n Proto_](http://capnproto.org) is our model for message encoding.
+
+### Encoding Examples
+
+    struct NullableBool {
+        union {  // 16-bit type-tag in bits 0-15
+            null @0 : Void;
+            bool @0 : Bool;
+        }
+    }
+
+ * Null: ``  16#0000000100000000 ------------0000``
+ * False: `` 16#0000000100000000 --------00000001``
+ * True: ``  16#0000000100000000 --------00010001``
+
+    CODE  WIDTH
+    000   0 bits    (empty)
+    001   1 bit
+    010   2 bits
+    011   4 bits
+    100   8 bits    (1 byte)
+    101   16 bits   (2 bytes)
+	110   32 bits   (4 bytes)
+    111   64 bits   (8 bytes)
+
