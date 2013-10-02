@@ -107,7 +107,7 @@ and working within a resource-safe language.
 
 Communication between memory domains 
 is accomplished through reading and writing bit-streams.
-[_Cap'n Proto_](http://capnproto.org) is our model for message encoding.
+[Cap'n Proto](http://capnproto.org) is our model for message encoding.
 
 ### Encoding Examples
 
@@ -118,9 +118,9 @@ is accomplished through reading and writing bit-streams.
         }
     }
 
- * Null: ``  16#0000000100000000 ------------0000``
- * False: `` 16#0000000100000000 --------00000001``
- * True: ``  16#0000000100000000 --------00010001``
+ * `16#0000000100000000 ------------0000` -- Null
+ * `16#0000000100000000 --------00000001` -- False
+ * `16#0000000100000000 --------00010001` -- True
 
     CODE  WIDTH
     000   0 bits    (empty)
@@ -131,4 +131,3 @@ is accomplished through reading and writing bit-streams.
     101   16 bits   (2 bytes)
 	110   32 bits   (4 bytes)
     111   64 bits   (8 bytes)
-
