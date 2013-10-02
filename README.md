@@ -103,6 +103,16 @@ but expect most behaviors to be well-behaved
 by virtue of having been created by a trusted compiler
 and working within a resource-safe language.
 
+## Abstract Assembly Language
+
+We don't want to be tied to any particular assembly language,
+so we define an abstract assembly language 
+in terms of basic operations on actor-visible resources.
+Translating this abstract assembly language 
+into assembly (or machine instructions) for a particular CPU
+should be straight-forward.
+[LLVM](http://llvm.org/) is our immediate target for translation.
+
 ## Bit-Stream Transport
 
 Communication between memory domains 
@@ -121,6 +131,8 @@ is accomplished through reading and writing bit-streams.
     16#0000000100000000 ------------0000 = Null
     16#0000000100000000 --------00000001 = False
     16#0000000100000000 --------00010001 = True
+
+Three bits are sufficient to encode a wide range of bit-string sizes.
 
     CODE  WIDTH
     000   0 bits    (empty)
