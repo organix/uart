@@ -198,20 +198,20 @@ Literal values are limited to strings, numbers, `true`, `false`, and `null`.
     { "action": "literal", "value": value, "result": reg }
     { "action": "object", "result": reg }
     { "action": "load", "object": reg, "key": reg, "result": reg }
-    { "action": "store", "object": reg, "key": reg }
-    { "action": "length", "object": reg, "result": reg }
-    { "action": "split", "object": reg, "at": reg, "head": reg, "tail", reg }
-    { "action": "concat", "head": reg, "tail": reg, "result": reg }
+    { "action": "store", "object": reg, "key": reg, "value": reg }
+    { "action": "length", "object": reg, "result": reg } -- maybe just "load","length"
+    { "action": "split", "object": reg, "at": reg, "head": reg, "tail": reg }
+    { "action": "join", "head": reg, "tail": reg, "result": reg }
     { "action": "compare", "this": reg, "that": reg,
-        "equal": reg, "less":reg, "more":reg }
+        "equal": reg, "less": reg, "more": reg }
     { "action": "add", "this": reg, "that": reg,
-        "result": reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+        "result": reg, "overflow": reg, "zero": reg, "pos": reg, "neg": reg }
     { "action": "sub", "this": reg, "that": reg,
-        "result": reg, "underflow":reg, "zero":reg, "pos":reg, "neg":reg }
+        "result": reg, "underflow": reg, "zero": reg, "pos": reg, "neg": reg }
     { "action": "mul", "this": reg, "that": reg,
-        "result": reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+        "result": reg, "overflow": reg, "zero": reg, "pos": reg, "neg": reg }
     { "action": "div", "this": reg, "that": reg,
-        "result": reg, "modulus":reg, "zero":reg, "pos":reg, "neg":reg }
+        "result": reg, "modulus": reg, "zero": reg, "pos": reg, "neg": reg }
     { "action": "if", "condition": reg, "true": [...], "false": [...] }
     { "action": "create", "behavior": reg, "result": reg }
     { "action": "send", "target": reg, "message": reg }
