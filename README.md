@@ -193,13 +193,12 @@ should be straight-forward.
 In the following descriptions, 
 `reg` indicates a string which names a logical "register"
 whose value may be read/written by the instruction.
-Literal values are limited to strings, numbers, `true`, `false`, and `null`.
+Literal values are limited to numbers, strings, `true`, `false`, and `null`.
 
     { "action": "literal", "value": value, "result": reg }
     { "action": "object", "result": reg }
     { "action": "load", "object": reg, "key": reg, "result": reg }
     { "action": "store", "object": reg, "key": reg, "value": reg }
-    { "action": "length", "object": reg, "result": reg } -- maybe just "load","length"
     { "action": "split", "object": reg, "at": reg, "head": reg, "tail": reg }
     { "action": "join", "head": reg, "tail": reg, "result": reg }
     { "action": "compare", "this": reg, "that": reg,
@@ -212,16 +211,39 @@ Literal values are limited to strings, numbers, `true`, `false`, and `null`.
         "result": reg, "overflow": reg, "zero": reg, "pos": reg, "neg": reg }
     { "action": "div", "this": reg, "that": reg,
         "result": reg, "modulus": reg, "zero": reg, "pos": reg, "neg": reg }
-    { "action": "if", "condition": reg, "true": [...], "false": [...] }
-    { "action": "create", "behavior": reg, "result": reg }
-    { "action": "send", "target": reg, "message": reg }
-    { "action": "become", "behavior": reg }
 
 Actor addresses behave like other values, 
 except that there is no "literal" format.
 They can only obtained through `"create"`,
 although they can be included in messages
 and other objects.
+
+    { "action": "create", "behavior": reg, "result": reg }
+    { "action": "send", "target": reg, "message": reg }
+    { "action": "become", "behavior": reg }
+
+Normally, instructions are executed in sequence.
+The `"label"` action stores the address of the next instruction
+into a named register.
+Control can be redirected to a labelled location
+by absolute or conditional jumps.
+
+    { "action": "label", "name": label }
+    { "action": "if", "condition": reg, "true": label, "false": label }
+    { "action": "jump", "label" : label }
+
+Registers may contain values or references.
+The least-significant bits of the register
+indicate the type of value or reference stored.
+
+    2#..xxxxx1  -- Integer ring
+    2#..xxx000  -- String/Symbol
+    2#..xxx010  -- Object
+    2#..xxx100  -- Actor
+    2#..000100  -- null   (a pre-defined actor)
+    2#..001100  -- true   (a pre-defined actor)
+    2#..010100  -- false  (a pre-defined actor)
+    2#..xxx110  -- Label/Address
 
 ### Instruction Format
 
