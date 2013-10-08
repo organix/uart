@@ -103,6 +103,81 @@ but expect most behaviors to be well-behaved
 by virtue of having been created by a trusted compiler
 and working within a resource-safe language.
 
+## Object/Environment/Dictionary
+
+In order to break away from positional access to data
+(or linear offset-based relative-addressing),
+we use logical names to access values 
+within a particular environment.
+The environment for execution of an actor's behavior
+is rooted at the Event dispatched to "animate" the actor.
+The Event structure could be something like this:
+
+    {
+        "sponsor" : { ...sponsor properties and resources... },
+        "target" : {
+        	"behavior" : [ ...a sequence of instructions... ],
+        	...additional stateful actor properties...
+        },
+        "message" : ...the value sent...
+    }
+
+### Instructions
+
+Notice that the value associated with `"behavior"` 
+is an array (sequence) of instructions.
+
+#### Actor Creation
+
+    {
+        "prototype" : Create,
+        "behavior" : [ ...a sequence of instructions... ]
+    }
+
+#### Asynchronous Messaging
+
+    {
+        "prototype" : Send,
+        "target" : anActor,
+        "message" : ...the value to be sent...
+    }
+
+#### Changing Behavior
+
+    {
+        "prototype" : Become,
+        "behavior" : [ ...a sequence of instructions... ]
+    }
+
+#### Binding Names
+
+    {
+        "prototype" : Bind,
+        "name" : ...variable name...,
+        "expr" : { ...an expression... }
+    }
+
+#### Object Values
+
+    {
+        "prototype" : Object,
+        "name" : ...variable name...
+    }
+
+    {
+    	"prototype" : Load,
+    	"object" : ...object to read...,
+    	"key" : ...namespace key...,
+        "name" : ...variable name...
+    }
+
+    {
+    	"prototype" : Store,
+    	"object" : ...object to update...,
+    	"key" : ...variable name...,
+    	"value" : ...the value to assign...
+    }
+
 ## Abstract Assembly Language
 
 We don't want to be tied to any particular assembly language,
@@ -112,6 +187,32 @@ Translating this abstract assembly language
 into assembly (or machine instructions) for a particular CPU
 should be straight-forward.
 [LLVM](http://llvm.org/) is our immediate target for translation.
+
+### Instruction Descriptions
+
+In the following descriptions, 
+`reg` indicates a string which names a logical "register"
+whose value may be read/written by the instruction.
+Values are limited to strings, numbers, `true`, `false`, and `null`.
+
+	{ "action": "literal", "value": value, "result": reg }
+    { "action": "object", "result": reg }
+    { "action": "load", "object": reg, "key": reg, "result": reg }
+    { "action": "store", "object": reg, "key": reg }
+    { "action": "length", "object": reg, "result": reg }
+    { "action": "split", "object": req, "at": reg, "head": reg, "tail", reg }
+    { "action": "concat", "head": reg, "tail": reg, "result": reg }
+    { "action": "compare", "this": reg, "that": reg,
+    	"equal": reg, "less":reg, "more":reg }
+    { "action": "add", "this": reg, "that": reg,
+    	"result": reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action": "sub", "this": reg, "that": reg,
+    	"result": reg, "underflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action": "mul", "this": reg, "that": reg,
+    	"result": reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action": "div", "this": reg, "that": reg,
+    	"result": reg, "modulus":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action": "if", "condition": reg, "true": [...], "false": [...] }
 
 ### Instruction Format
 
