@@ -238,11 +238,11 @@ indicate the type of value or reference stored.
 
     2#..xxxxx1  -- Integer ring
     2#..xxx000  -- String/Symbol
-    2#..xxx010  -- Object
-    2#..xxx100  -- Actor
-    2#..000100  -- null   (a pre-defined actor)
-    2#..001100  -- true   (a pre-defined actor)
-    2#..010100  -- false  (a pre-defined actor)
+    2#..xxx010  -- Structure
+    2#..xxx100  -- Reference
+    2#..000100  -- null   (a pre-defined actor reference)
+    2#..001100  -- true   (a pre-defined actor reference)
+    2#..010100  -- false  (a pre-defined actor reference)
     2#..xxx110  -- Label/Address
 
 ### Instruction Format
