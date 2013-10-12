@@ -88,10 +88,20 @@ only one actor can occupy a particular address.
 This implies that we can determine matching actor identities 
 by simply comparing memory addresses.
 We can extend this to a small set of pre-defined Values 
-by encoding them directly in the bits of a "pointer".
+by encoding them directly in the bits of a "register".
 These are effectively synthetic actor addresses.
 The type of the value (and thus it's immutable behavior) 
 and the value itself are both encoded in the address.
+The least-significant bits indicate the type of data stored.
+
+    2#..xxxxx1  -- Integer ring
+    2#..xxx000  -- String/Symbol
+    2#..xxx010  -- Structure
+    2#..xxx100  -- Reference
+    2#..000100  -- null   (a pre-defined actor reference)
+    2#..001100  -- true   (a pre-defined actor reference)
+    2#..010100  -- false  (a pre-defined actor reference)
+    2#..xxx110  -- Label/Address
 
 The main resource controlled by the _Sponsor_ is memory.
 Since each Send and each Create consumes memory, 
@@ -103,80 +113,6 @@ but expect most behaviors to be well-behaved
 by virtue of having been created by a trusted compiler
 and working within a resource-safe language.
 
-## Object/Environment/Dictionary
-
-In order to break away from positional access to data
-(or linear offset-based relative-addressing),
-we use logical names to access values 
-within a particular environment.
-The environment for execution of an actor's behavior
-is rooted at the Event dispatched to "animate" the actor.
-The Event structure could be something like this:
-
-    {
-        "sponsor" : { ...sponsor properties and resources... },
-        "target" : {
-        	"behavior" : [ ...a sequence of instructions... ],
-        	...additional stateful actor properties...
-        },
-        "message" : ...the value sent...
-    }
-
-### Instructions
-
-Notice that the value associated with `"behavior"` 
-is an array (sequence) of instructions.
-
-#### Actor Creation
-
-    {
-        "prototype" : Create,
-        "behavior" : [ ...a sequence of instructions... ]
-    }
-
-#### Asynchronous Messaging
-
-    {
-        "prototype" : Send,
-        "target" : anActor,
-        "message" : ...the value to be sent...
-    }
-
-#### Changing Behavior
-
-    {
-        "prototype" : Become,
-        "behavior" : [ ...a sequence of instructions... ]
-    }
-
-#### Binding Names
-
-    {
-        "prototype" : Bind,
-        "name" : ...variable name...,
-        "expr" : { ...an expression... }
-    }
-
-#### Object Values
-
-    {
-        "prototype" : Object,
-        "name" : ...variable name...
-    }
-
-    {
-    	"prototype" : Load,
-    	"object" : ...object to read...,
-    	"key" : ...namespace key...,
-        "name" : ...variable name...
-    }
-
-    {
-    	"prototype" : Store,
-    	"object" : ...object to update...,
-    	"key" : ...variable name...,
-    	"value" : ...the value to assign...
-    }
 
 ## Abstract Assembly Language
 
@@ -193,6 +129,8 @@ should be straight-forward.
 In the following descriptions, 
 `reg` indicates a string which names a logical "register"
 whose value may be read/written by the instruction.
+We assume the assembler can do liveness analysis
+and assign logical registers to physical registers on a given CPU.
 Literal values are limited to numbers, strings, `true`, `false`, and `null`.
 
     { "action": "literal", "value": value, "result": reg }
@@ -234,209 +172,17 @@ by absolute or conditional jumps.
 
 Registers may contain values or references.
 The least-significant bits of the register
-indicate the type of value or reference stored.
+encode the data-type, as described previously.
 
-    2#..xxxxx1  -- Integer ring
-    2#..xxx000  -- String/Symbol
-    2#..xxx010  -- Structure
-    2#..xxx100  -- Reference
-    2#..000100  -- null   (a pre-defined actor reference)
-    2#..001100  -- true   (a pre-defined actor reference)
-    2#..010100  -- false  (a pre-defined actor reference)
-    2#..xxx110  -- Label/Address
+Several registers are pre-defined 
+to contain components of the current Event.
+This provides the execution environment
+for the target actor's behavior.
 
-### Instruction Format
+ * `"_sponsor"`
+ * `"_self"`
+ * `"_message"`
 
-Behaviors are described in terms of 
-imperative machine instructions.
-Machine instructions consists of 
-a _verb_ describing the operation, 
-a _subject_ the verb acts on, 
-an _object_ parameterizing the action, 
-and a _result_ location.
-The full instruction format is:
-
-    verb(subject, object) => result
-
-Not all components are present in all instructions.
-Components may be either literal values 
-or variable references.
-Literal values (constants) are indicated by a `#` prefix.
-Variable references are simply names.
-We assume the assembler can do liveness analysis
-and assign names to machine registers.
-
-The instruction format shown above 
-can be considered "syntactic sugar" 
-for construction of a typed object such as:
-
-    {
-        prototype: MachineInstruction,
-        verb: verb,
-        subject: subject,
-        object: object,
-        result: result
-    }
-
-### Values
-
-Our abstract machine has one primitive data-type,
-a fixed-width string of binary digits 
-that can be interpreted as an unsigned 
-or signed (2's complement) integer ring.
-We do not specify the exact width. _[maybe provide with bit-width as a constant]_
-It is intended to match the natural size 
-of a machine word on the target processor.
-This will be either 16 or 32 bits
-on most processors currently in use.
-
-### Names
-
-Rarely can a behavior be described using only constants.
-Most behaviors require some kind of parameterization.
-The lambda-calculus substitution model 
-gives us a mechanism to describe parameterized behaviors.
-We can define template functions 
-that are applied to parameter values.
-The resulting substitution produces a concrete behavior.
-We use sets and maps, rather than lists, 
-to define the parameters and their substitution values.
-For example:
-
-    \{m, a}.[
-    	#send(m, a)
-    	#send(m, a)
-    ] => b
-    b{a:sink, m:#0}
-
-Here we define a template function 
-that introduces the set of names `m` and `a` 
-as parameters to a block of instructions. 
-This function is bound to the name `b`,
-then applied to a map of parameter values.
-The result is effectively equivalent to:
-
-    #send(#0, sink)
-    #send(#0, sink)
-
-In this context, the name `sink` is expected to be bound
-in some enclosing scope.  An implementation may use 
-partial application in the compilation process 
-to substitute concrete values 
-for some parameter names.
-
-The same binding mechanism is used 
-to provide access to the incoming message. 
-The message is treated as a parameter value 
-applied to the behavior template 
-to produce the concrete behavior of an actor.
-_[is there an implicit binding to `this` or `self`?]_
-
-### Memory Management
-
-Construction begins with allocation of unstructured storage.
-
-    #alloc(size) => address
-
-The `#alloc` verb allocates 
-`size` consecutive words unstructured storage.
-The result `address` is a reference to this memory.
-
-Unreferenced storage is automatically reclaimed 
-by a garbage collection process.
-Sometimes we can assist the garbage collector
-by explicitly releasing storage.
-
-    #free(address)
-
-The `#free` verb releases the storage at `address`
-and invalidates further use of that reference.
-
-Transferring data between registers and memory involves
-specifying a bit-position in memory, 
-a direction for the transfer, 
-and a count of the number of bits to copy.
-
-	#from(base, offset)
-
-The `#from` verb establishes the bit-position 
-for subsequent `#read` operations.
-If `base` is zero, 
-the relative `offset` is added to the current read-position.
-If `base` is non-zero, 
-the absolute read-position is set to `base` words plus `offset` bits.
-
-    #read(count) => data
-
-The `#read` verb copies `count` bits 
-from the current read-position in memory 
-into the least-significant bits of a `data` register,
-and increments the current read-position by `count`.
-
-	#to(base, offset)
-
-The `#to` verb establishes the bit-position 
-for subsequent `#write` operations.
-If `base` is zero, 
-the relative `offset` is added to the current write-position.
-If `base` is non-zero, 
-the absolute write-position is set to `base` words plus `offset` bits.
-
-    #write(data, count)
-
-The `#write` verb copies the least-significant `count` bits
-from a `data` register
-into memory at the current write-position,
-and increments the current write-position by `count`.
-
-	#copy(data) => register
-
-The `#copy` verb copies `data` to a `register`.
-Note that `data` may be either a literal value or a register,
-but `register` must be a register reference.
-
-### Actor Behavior
-
-The minimal actor behavior 
-is to ignore the incoming message 
-and do nothing.
-When a behavior is complete, 
-control returns to the kernel
-to dispatch the next event.
-
-    #done
-
-The `#done` verb indicates that the actor
-has handled the event. _[successfully?]_
-
-An actor is created with some initial behavior.
-
-    #create(behavior) => address
-
-The `#create` verb creates a new actor
-with the specified initial `behavior`.
-The result is the unique `address`
-of the new actor.
-
-Asynchronous message sending
-is the most common kind of actor behavior.
-
-    #send(message, target)
-
-The `#send` verb creates a new event
-that will asynchronously deliver 
-the specified `message` 
-to the `target` actor.
-
-Sometimes an actor's behavior
-is dependent on the history
-of messages it has processed.
-
-    #become(behavior)
-
-The `become` verb specifies a new `behavior`
-that the current actor will use
-to process future message events.
 
 ## Bit-Stream Transport
 
