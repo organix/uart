@@ -131,14 +131,82 @@ In the following descriptions,
 whose value may be read/written by the instruction.
 We assume the assembler can do liveness analysis
 and assign logical registers to physical registers on a given CPU.
-Literal values are limited to numbers, strings, `true`, `false`, and `null`.
+
+Registers may contain values or references.
+The least-significant bits of the register
+encodes the data-type, as described previously.
 
     { "action": "literal", "value": value, "result": reg }
-    { "action": "object", "result": reg }
-    { "action": "load", "object": reg, "key": reg, "result": reg }
-    { "action": "store", "object": reg, "key": reg, "value": reg }
-    { "action": "split", "object": reg, "at": reg, "head": reg, "tail": reg }
+
+The `"literal"` action stores a literal value 
+into the register named by `"result"`.
+Literal values are limited to numbers, strings, `true`, `false`, and `null`.
+All other actions get their values indirectly, 
+from registers named by strings, 
+so this is the only way to provide an "immediate" parameter.
+
+### Structures
+
+Structures are collections of bindings from keys to values.
+The keys can be of any type, although strings are most common.
+
+    { "action": "struct", "result": reg }
+
+The `"struct"` action creates a new empty structure value.
+A reference to the new structure is stored 
+into the register named by `"result"`.
+
+    { "action": "load", "struct": reg, "key": reg, "result": reg }
+
+The `"load"` action looks up `"key"` in `"struct"` 
+and stores the corresponding value into `"result"`.
+If `"key"` is not found in `"struct"`, then the value is `null`.
+The prototype/nested-scope chain is included in the search.
+
+    { "action": "store", "struct": reg, "key": reg, "value": reg }
+
+The `"store"` action binds `"key"` to `"value"` directly in `"struct"`.
+If value is `null`, then `"key"` is effectively deleted.
+
+    { "action": "has", "struct": reg, "key": reg, "result": reg }
+
+The `"has"` action stores `true` in `"result"` 
+if `"struct"` has a direct binding for `"key"`.
+Otherwise `false` is stored in `"result"`.
+The prototype/nested-scope chain is not searched.
+
+### Arrays
+
+Arrays are a special kind of Structure.
+They are index by numeric keys, starting with zero.
+The value of the `"length"` key is always one larger
+than the largest index under which a value is stored.
+Thus, appending to the array is accomplished 
+by storing the new element at the current value of `"length"`.
+
+    { "action": "split", "value": reg, "at": reg, "head": reg, "tail": reg }
+
+The `"split"` action create two new arrays from an existing array `"value"`.
+The array stored in `"head"` contains the elements 
+from the beginning of the array up to, but not including, `"at"`.
+The array stored in `"tail"` contains the elements
+starting from `"at"` and continuing through the end of the array.
+Note that `"head"` and/or `"tail"` could be empty, 
+depending on the value of `"at"`, 
+and both have their own `"length"`.
+
+The `"split"` action also acts on other types of `"value"`.
+A string is interpreted as an array of integer code-points (for each character).
+A number is interpreted as an array of boolean bit-values (most-significant first).
+
     { "action": "join", "head": reg, "tail": reg, "result": reg }
+
+The `"join"` action concatenates two array values.
+It is the inverse of `"split"`.
+It also acts on strings and numbers.
+
+### Arithmetic Operations
+
     { "action": "compare", "this": reg, "that": reg,
         "equal": reg, "less": reg, "more": reg }
     { "action": "add", "this": reg, "that": reg,
@@ -150,15 +218,19 @@ Literal values are limited to numbers, strings, `true`, `false`, and `null`.
     { "action": "div", "this": reg, "that": reg,
         "result": reg, "modulus": reg, "zero": reg, "pos": reg, "neg": reg }
 
+### Actor Primitives
+
 Actor addresses behave like other values, 
 except that there is no "literal" format.
 They can only obtained through `"create"`,
 although they can be included in messages
-and other objects.
+and other structures.
 
     { "action": "create", "behavior": reg, "result": reg }
     { "action": "send", "target": reg, "message": reg }
     { "action": "become", "behavior": reg }
+
+### Flow Control
 
 Normally, instructions are executed in sequence.
 The `"label"` action stores the address of the next instruction
@@ -169,10 +241,6 @@ by absolute or conditional jumps.
     { "action": "label", "name": label }
     { "action": "if", "condition": reg, "true": label, "false": label }
     { "action": "jump", "label" : label }
-
-Registers may contain values or references.
-The least-significant bits of the register
-encode the data-type, as described previously.
 
 Several registers are pre-defined 
 to contain components of the current Event.
