@@ -173,12 +173,13 @@ If value is `null`, then `"key"` is effectively deleted.
 The `"has"` action stores `true` in `"result"` 
 if `"struct"` has a direct binding for `"key"`.
 Otherwise `false` is stored in `"result"`.
-The prototype/nested-scope chain is not searched.
+The prototype/nested-scope chain is not searched,
+so this action can distinguish direct from inherited keys.
 
 ### Arrays
 
 Arrays are a special kind of Structure.
-They are index by numeric keys, starting with zero.
+They are indexed by numeric keys, starting with zero.
 The value of the `"length"` key is always one larger
 than the largest index under which a value is stored.
 Thus, appending to the array is accomplished 
@@ -198,12 +199,16 @@ and both have their own `"length"`.
 The `"split"` action also acts on other types of `"value"`.
 A string is interpreted as an array of integer code-points (for each character).
 A number is interpreted as an array of boolean bit-values (most-significant first).
+A boolean ignores `"at"`, stores itself in `"head"` and `null` in `"tail"`.
+A non-array structure separates the value `"at"` the specified key 
+(stored in `"head"`) from the rest of the structure (stored in `"tail"`).
+If `"at"` is not directly bound, then the `"head"` structure will be empty.
 
     { "action": "join", "head": reg, "tail": reg, "result": reg }
 
 The `"join"` action concatenates two array values.
 It is the inverse of `"split"`.
-It also acts on strings and numbers.
+It also acts on other types in a corresponding way.
 
 ### Arithmetic Operations
 
@@ -241,6 +246,8 @@ by absolute or conditional jumps.
     { "action": "label", "name": label }
     { "action": "if", "condition": reg, "true": label, "false": label }
     { "action": "jump", "label" : label }
+
+### Environment
 
 Several registers are pre-defined 
 to contain components of the current Event.
