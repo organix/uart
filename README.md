@@ -132,6 +132,19 @@ whose value may be read/written by the instruction.
 We assume the assembler can do liveness analysis
 and assign logical registers to physical registers on a given CPU.
 
+### Environment
+
+Several registers are pre-defined 
+to contain components of the current Event.
+This provides the execution environment
+for the target actor's behavior.
+
+ * `"_sponsor"`
+ * `"_self"`
+ * `"_message"`
+
+### Values
+
 Registers may contain values or references.
 The least-significant bits of the register
 encodes the data-type, as described previously.
@@ -150,9 +163,11 @@ so this is the only way to provide an "immediate" parameter.
 Structures are collections of bindings from keys to values.
 The keys can be of any type, although strings are most common.
 
-    { "action": "struct", "result": reg }
+    { "action": "new", "type": reg, "result": reg }
 
-The `"struct"` action creates a new empty structure value.
+The `"new"` action creates a new structure value.
+THe `"type"` register contains a reference to the structure type.
+The structure type is specified by `"constructor"`.
 A reference to the new structure is stored 
 into the register named by `"result"`.
 
@@ -209,6 +224,7 @@ If `"at"` is not directly bound, then the `"head"` structure will be empty.
 The `"join"` action concatenates two array values.
 It is the inverse of `"split"`.
 It also acts on other types in a corresponding way.
+If the types of `"head"` and `"tail"` are incompatible, the action *fails*.
 
 ### Arithmetic Operations
 
@@ -238,25 +254,20 @@ and other structures.
 ### Flow Control
 
 Normally, instructions are executed in sequence.
+When there are no more instructions in the sequence,
+control returns to the kernel.
+If an instruction fails, 
+control transfers to the kernel exception handler.
+The `"fail"` action forces failure.
 The `"label"` action stores the address of the next instruction
 into a named register.
 Control can be redirected to a labelled location
 by absolute or conditional jumps.
 
+    { "action": "fail" }
     { "action": "label", "name": label }
     { "action": "if", "condition": reg, "true": label, "false": label }
     { "action": "jump", "label" : label }
-
-### Environment
-
-Several registers are pre-defined 
-to contain components of the current Event.
-This provides the execution environment
-for the target actor's behavior.
-
- * `"_sponsor"`
- * `"_self"`
- * `"_message"`
 
 
 ## Bit-Stream Transport
