@@ -287,25 +287,25 @@ We will use square-brackets as syntactic sugar for Array creation.
 A transparent forwarder simply sends any message it receives to a delegate.
 
     [
-	    { "action": "literal", "value": "delegate", "result": "key" }
-        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" }
+        { "action": "literal", "value": "delegate", "result": "key" },
+        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
         { "action": "send", "target": "delegate", "message": "_message" }
     ]
-
-The variable _delegate_ is replaced by a reference to the target actor.
 
 ### Label
 
 A label is just a forwarder that wraps the message in an envelope.
 
     [
-	    { "action": "literal", "value": label, "result": "label" }
-        { "action": "new", "type": "Object", "result": "envelope" }
-	    { "action": "literal", "value": "label", "result": "key" }
-        { "action": "store", "struct": "envelope", "key": "key", "value": "label" }
-	    { "action": "literal", "value": "content", "result": "key" }
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" }
-	    { "action": "literal", "value": delegate, "result": "delegate" }
+        { "action": "literal", "value": "delegate", "result": "key" },
+        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
+        { "action": "literal", "value": "label", "result": "key" },
+        { "action": "load", "struct": "_self", "key": "key", "result": "label" },
+        { "action": "new", "type": "Object", "result": "envelope" },
+        { "action": "literal", "value": "label", "result": "key" },
+        { "action": "store", "struct": "envelope", "key": "key", "value": "label" },
+        { "action": "literal", "value": "content", "result": "key" },
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" },
         { "action": "send", "target": "delegate", "message": "envelope" }
     ]
 
@@ -314,12 +314,13 @@ A label is just a forwarder that wraps the message in an envelope.
 A tag uses the identity (address) of the current actor as a label.
 
     [
-        { "action": "new", "type": "Object", "result": "envelope" }
-	    { "action": "literal", "value": "label", "result": "key" }
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_self" }
-	    { "action": "literal", "value": "content", "result": "key" }
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" }
-	    { "action": "literal", "value": delegate, "result": "delegate" }
+        { "action": "literal", "value": "delegate", "result": "key" },
+        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
+        { "action": "new", "type": "Object", "result": "envelope" },
+        { "action": "literal", "value": "label", "result": "key" },
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_self" },
+        { "action": "literal", "value": "content", "result": "key" },
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" },
         { "action": "send", "target": "delegate", "message": "envelope" }
     ]
 
@@ -352,5 +353,5 @@ Three bits are sufficient to encode a wide range of bit-string sizes.
     011   4 bits
     100   8 bits    (1 byte)
     101   16 bits   (2 bytes)
-	110   32 bits   (4 bytes)
+    110   32 bits   (4 bytes)
     111   64 bits   (8 bytes)
