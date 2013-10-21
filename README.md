@@ -287,7 +287,8 @@ We will use square-brackets as syntactic sugar for Array creation.
 A transparent forwarder simply sends any message it receives to a delegate.
 
     [
-	    { "action": "literal", "value": delegate, "result": "delegate" }
+	    { "action": "literal", "value": "delegate", "result": "key" }
+        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" }
         { "action": "send", "target": "delegate", "message": "_message" }
     ]
 
@@ -310,7 +311,7 @@ A label is just a forwarder that wraps the message in an envelope.
 
 ### Tag
 
-A tag uses identity (address) of the actor as a label.
+A tag uses the identity (address) of the current actor as a label.
 
     [
         { "action": "new", "type": "Object", "result": "envelope" }
