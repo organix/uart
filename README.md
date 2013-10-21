@@ -270,6 +270,58 @@ by absolute or conditional jumps.
     { "action": "jump", "label" : label }
 
 
+## Actor Idioms
+
+The sufficiency of our abstract instruction set 
+is illustrated by showing how various actor idioms 
+may be implemented.
+
+### Sink
+
+Reaching the end of a list of instructions implies successful completion,
+thus `[]` will "succeed" without taking any further action.
+We will use square-brackets as syntactic sugar for Array creation.
+
+### Forward
+
+A transparent forwarder simply sends any message it receives to a delegate.
+
+    [
+	    { "action": "literal", "value": delegate, "result": "delegate" }
+        { "action": "send", "target": "delegate", "message": "_message" }
+    ]
+
+The variable _delegate_ is replaced by a reference to the target actor.
+
+### Label
+
+A label is just a forwarder that wraps the message in an envelope.
+
+    [
+	    { "action": "literal", "value": label, "result": "label" }
+        { "action": "new", "type": "Object", "result": "envelope" }
+	    { "action": "literal", "value": "label", "result": "key" }
+        { "action": "store", "struct": "envelope", "key": "key", "value": "label" }
+	    { "action": "literal", "value": "content", "result": "key" }
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" }
+	    { "action": "literal", "value": delegate, "result": "delegate" }
+        { "action": "send", "target": "delegate", "message": "envelope" }
+    ]
+
+### Tag
+
+A tag uses identity (address) of the actor as a label.
+
+    [
+        { "action": "new", "type": "Object", "result": "envelope" }
+	    { "action": "literal", "value": "label", "result": "key" }
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_self" }
+	    { "action": "literal", "value": "content", "result": "key" }
+        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" }
+	    { "action": "literal", "value": delegate, "result": "delegate" }
+        { "action": "send", "target": "delegate", "message": "envelope" }
+    ]
+
 ## Bit-Stream Transport
 
 Communication between memory domains 
