@@ -324,6 +324,19 @@ A tag uses the identity (address) of the current actor as a label.
         { "action": "send", "target": "delegate", "message": "envelope" }
     ]
 
+### One-Shot
+
+Forward exactly one message.
+
+    [
+        { "action": "literal", "value": "delegate", "result": "key" },
+        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
+        { "action": "send", "target": "delegate", "message": "_message" },
+        { "action": "new", "type": "Array", "result": "behavior" },
+        { "action": "become", "behavior": "behavior" }
+    ]
+
+
 ## Bit-Stream Transport
 
 Communication between memory domains 
