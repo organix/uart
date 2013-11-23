@@ -467,7 +467,7 @@ For comparison, the equivalent Humus code would be:
             SEND (customer, #lookup, x) TO environment
         ]
         (customer, #bind, value, environment) : [
-        	CREATE extended WITH binding(x, value, environment)
+            CREATE extended WITH binding(x, value, environment)
             SEND extended TO customer
         ]
         END
@@ -475,8 +475,35 @@ For comparison, the equivalent Humus code would be:
 
 ### (Function) Application
 
-### (Lambda) Abstract
+    LET application(oper_expr, opnd_expr) = \_message.[
+        CASE _message OF
+        (customer, #eval, environment) : [
+            SEND (k_oper, #eval, environment) TO oper_expr
+            CREATE k_oper WITH \operator.[
+                SEND (k_opnd, #eval, environment) TO opnd_expr
+                CREATE k_opnd WITH \operand.[
+                    SEND (customer, #apply, operand) TO operator
+                ]
+            ]
+        ]
+        END
+    ]
 
+### (Lambda) Abstraction
+
+    LET lambda(formal, body) = \_message.[
+        CASE _message OF
+        (customer, #eval, environment) : [
+            CREATE operator WITH \(customer2, #apply, argument).[
+                SEND (k_bind, #bind, argument, environment) TO formal
+                CREATE k_bind WITH \extended.[
+                    SEND (customer2, #eval, extended) TO body
+                ]
+            ]
+            SEND operator TO customer
+        ]
+        END
+    ]
 
 ## Bit-Stream Transport
 
