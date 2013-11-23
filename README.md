@@ -149,7 +149,7 @@ Registers may contain values or references.
 The least-significant bits of the register
 encodes the data-type, as described previously.
 
-    { "action": "literal", "value": value, "result": reg }
+    { "action":"literal", "value":value, "result":reg }
 
 The `"literal"` action stores a literal value 
 into the register named by `"result"`.
@@ -163,7 +163,7 @@ so this is the only way to provide an "immediate" parameter.
 Structures are collections of bindings from keys to values.
 The keys can be of any type, although strings are most common.
 
-    { "action": "new", "type": reg, "result": reg }
+    { "action":"new", "type":reg, "result":reg }
 
 The `"new"` action creates a new structure value.
 THe `"type"` register contains a reference to the structure type.
@@ -171,19 +171,19 @@ The structure type is specified by `"constructor"`.
 A reference to the new structure is stored 
 into the register named by `"result"`.
 
-    { "action": "load", "struct": reg, "key": reg, "result": reg }
+    { "action":"load", "struct":reg, "key":reg, "result":reg }
 
 The `"load"` action looks up `"key"` in `"struct"` 
 and stores the corresponding value into `"result"`.
 If `"key"` is not found in `"struct"`, then the value is `null`.
 The prototype/nested-scope chain is included in the search.
 
-    { "action": "store", "struct": reg, "key": reg, "value": reg }
+    { "action":"store", "struct":reg, "key":reg, "value":reg }
 
 The `"store"` action binds `"key"` to `"value"` directly in `"struct"`.
 If value is `null`, then `"key"` is effectively deleted.
 
-    { "action": "has", "struct": reg, "key": reg, "result": reg }
+    { "action":"has", "struct":reg, "key":reg, "result":reg }
 
 The `"has"` action stores `true` in `"result"` 
 if `"struct"` has a direct binding for `"key"`.
@@ -200,7 +200,7 @@ than the largest index under which a value is stored.
 Thus, appending to the array is accomplished 
 by storing the new element at the current value of `"length"`.
 
-    { "action": "split", "value": reg, "at": reg, "head": reg, "tail": reg }
+    { "action":"split", "value":reg, "at":reg, "head":reg, "tail":reg }
 
 The `"split"` action create two new arrays from an existing array `"value"`.
 The array stored in `"head"` contains the elements 
@@ -219,7 +219,7 @@ A non-array structure separates the value `"at"` the specified key
 (stored in `"head"`) from the rest of the structure (stored in `"tail"`).
 If `"at"` is not directly bound, then the `"head"` structure will be empty.
 
-    { "action": "join", "head": reg, "tail": reg, "result": reg }
+    { "action":"join", "head":reg, "tail":reg, "result":reg }
 
 The `"join"` action concatenates two array values.
 It is the inverse of `"split"`.
@@ -228,16 +228,16 @@ If the types of `"head"` and `"tail"` are incompatible, the action *fails*.
 
 ### Arithmetic Operations
 
-    { "action": "compare", "this": reg, "that": reg,
-        "equal": reg, "less": reg, "more": reg }
-    { "action": "add", "this": reg, "that": reg,
-        "result": reg, "overflow": reg, "zero": reg, "pos": reg, "neg": reg }
-    { "action": "sub", "this": reg, "that": reg,
-        "result": reg, "underflow": reg, "zero": reg, "pos": reg, "neg": reg }
-    { "action": "mul", "this": reg, "that": reg,
-        "result": reg, "overflow": reg, "zero": reg, "pos": reg, "neg": reg }
-    { "action": "div", "this": reg, "that": reg,
-        "result": reg, "modulus": reg, "zero": reg, "pos": reg, "neg": reg }
+    { "action":"compare", "this":reg, "that":reg,
+        "equal":reg, "less":reg, "more":reg }
+    { "action":"add", "this":reg, "that":reg,
+        "result":reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action":"sub", "this":reg, "that":reg,
+        "result":reg, "underflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action":"mul", "this":reg, "that":reg,
+        "result":reg, "overflow":reg, "zero":reg, "pos":reg, "neg":reg }
+    { "action":"div", "this":reg, "that":reg,
+        "result":reg, "modulus":reg, "zero":reg, "pos":reg, "neg":reg }
 
 ### Actor Primitives
 
@@ -247,9 +247,9 @@ They can only obtained through `"create"`,
 although they can be included in messages
 and other structures.
 
-    { "action": "create", "behavior": reg, "result": reg }
-    { "action": "send", "target": reg, "message": reg }
-    { "action": "become", "behavior": reg }
+    { "action":"create", "behavior":reg, "result":reg }
+    { "action":"send", "target":reg, "message":reg }
+    { "action":"become", "behavior":reg }
 
 ### Flow Control
 
@@ -264,10 +264,10 @@ into a named register.
 Control can be redirected to a labelled location
 by absolute or conditional jumps.
 
-    { "action": "fail" }
-    { "action": "label", "name": label }
-    { "action": "if", "condition": reg, "true": label, "false": label }
-    { "action": "jump", "label" : label }
+    { "action":"fail" }
+    { "action":"label", "name":label }
+    { "action":"if", "condition":reg, "true":label, "false":label }
+    { "action":"jump", "label":label }
 
 
 ## Actor Idioms
@@ -287,9 +287,9 @@ We will use square-brackets as syntactic sugar for Array creation.
 A transparent forwarder simply sends any message it receives to a delegate.
 
     [
-        { "action": "literal", "value": "delegate", "result": "key" },
-        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
-        { "action": "send", "target": "delegate", "message": "_message" }
+        { "action":"literal", "value":"delegate", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
+        { "action":"send", "target":"delegate", "message":"_message" }
     ]
 
 ### Label
@@ -297,16 +297,16 @@ A transparent forwarder simply sends any message it receives to a delegate.
 A label is just a forwarder that wraps the message in an envelope.
 
     [
-        { "action": "literal", "value": "delegate", "result": "key" },
-        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
-        { "action": "literal", "value": "label", "result": "key" },
-        { "action": "load", "struct": "_self", "key": "key", "result": "label" },
-        { "action": "new", "type": "Object", "result": "envelope" },
-        { "action": "literal", "value": "label", "result": "key" },
-        { "action": "store", "struct": "envelope", "key": "key", "value": "label" },
-        { "action": "literal", "value": "content", "result": "key" },
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" },
-        { "action": "send", "target": "delegate", "message": "envelope" }
+        { "action":"literal", "value":"delegate", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
+        { "action":"literal", "value":"label", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"label" },
+        { "action":"new", "type":"Object", "result":"envelope" },
+        { "action":"literal", "value":"label", "result":"key" },
+        { "action":"store", "struct":"envelope", "key":"key", "value":"label" },
+        { "action":"literal", "value":"content", "result":"key" },
+        { "action":"store", "struct":"envelope", "key":"key", "value":"_message" },
+        { "action":"send", "target":"delegate", "message":"envelope" }
     ]
 
 ### Tag
@@ -314,14 +314,14 @@ A label is just a forwarder that wraps the message in an envelope.
 A tag uses the identity (address) of the current actor as a label.
 
     [
-        { "action": "literal", "value": "delegate", "result": "key" },
-        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
-        { "action": "new", "type": "Object", "result": "envelope" },
-        { "action": "literal", "value": "label", "result": "key" },
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_self" },
-        { "action": "literal", "value": "content", "result": "key" },
-        { "action": "store", "struct": "envelope", "key": "key", "value": "_message" },
-        { "action": "send", "target": "delegate", "message": "envelope" }
+        { "action":"literal", "value":"delegate", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
+        { "action":"new", "type":"Object", "result":"envelope" },
+        { "action":"literal", "value":"label", "result":"key" },
+        { "action":"store", "struct":"envelope", "key":"key", "value":"_self" },
+        { "action":"literal", "value":"content", "result":"key" },
+        { "action":"store", "struct":"envelope", "key":"key", "value":"_message" },
+        { "action":"send", "target":"delegate", "message":"envelope" }
     ]
 
 ### One-Shot
@@ -329,12 +329,153 @@ A tag uses the identity (address) of the current actor as a label.
 Forward exactly one message.
 
     [
-        { "action": "literal", "value": "delegate", "result": "key" },
-        { "action": "load", "struct": "_self", "key": "key", "result": "delegate" },
-        { "action": "send", "target": "delegate", "message": "_message" },
-        { "action": "new", "type": "Array", "result": "behavior" },
-        { "action": "become", "behavior": "behavior" }
+        { "action":"literal", "value":"delegate", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
+        { "action":"send", "target":"delegate", "message":"_message" },
+        { "action":"new", "type":"Array", "result":"behavior" },
+        { "action":"become", "behavior":"behavior" }
     ]
+
+
+## Lambda Calculus
+
+An evaluator for pure-functional Lambda Calculus
+can be implemented with a very small number
+of actor behaviors.
+
+### (Environment) Binding
+
+A Binding responds to a `lookup` message by
+returning the bound `value` (if `name` matches),
+or delegating to the next `environment`.
+
+    [
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"action" },
+        { "action":"literal", "value":"lookup", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "false":"l_end" },
+        { "action":"literal", "value":"name", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"name" },
+        { "action":"literal", "value":"x", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"x" },
+        { "action":"compare", "this":"name", "that":"x", "equal":"equal" },
+        { "action":"if", "condition":"equal", "false":"l_delegate" },
+        { "action":"literal", "value":"value", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"value" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"customer" },
+        { "action":"send", "target":"customer", "message":"value" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_delegate" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"environment" },
+        { "action":"new", "type":"Object", "result":"message" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"customer" },
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"lookup", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+        { "action":"literal", "value":"name", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"name" },
+        { "action":"send", "target":"environment", "message":"message" },
+
+        { "action":"label", "name":"l_end" }
+    ]
+
+For comparison, the equivalent Humus code would be:
+
+    LET binding(x, value, environment) = \_message.[
+        CASE _message OF
+        (customer, #lookup, $x) : [
+            SEND value TO customer
+        ]
+        (_, #lookup, _) : [
+            SEND _message TO environment
+        ]
+        END
+    ]
+
+### (Variable) Identifier
+
+An Identifier responds to an `eval` message by 
+looking itself up in the provided environment.
+It responds to a `bind` message by
+extending the provided environment
+with a new binding.
+
+    [
+        { "action":"literal", "value":"x", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"x" },
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"action" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "true":"l_eval" },
+        { "action":"literal", "value":"bind", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "true":"l_bind" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_eval" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
+        { "action":"new", "type":"Object", "result":"message" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"customer" },
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"lookup", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+        { "action":"literal", "value":"name", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"x" },
+        { "action":"send", "target":"environment", "message":"message" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_bind" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"value", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"value" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
+            { "action":"new", "type":"Array", "result":"behavior" },
+            { },
+            { "action":"literal", "value":"length", "result":"k_length" },
+                { "action":"new", "type":"Array", "result":"op" },
+                { "action":"literal", "value":"action", "result":"key" },
+                { "action":"literal", "value":"lookup", "result":"value" },
+                { "action":"store", "struct":"message", "key":"key", "value":"value" },
+                { },
+                { "action":"load", "struct":"behavior", "key":"k_length", "result":"length" },
+                { "action":"store", "struct":"behavior", "key":"length", "value":"op" },
+            { },
+            { "action":"create", "behavior":"behavior", "result":"extended" },
+        { "action":"send", "target":"customer", "message":"extended" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_end" }
+    ]
+
+For comparison, the equivalent Humus code would be:
+
+    LET identifier(x) = \_message.[
+        CASE _message OF
+        (customer, #eval, environment) : [
+            SEND (customer, #lookup, x) TO environment
+        ]
+        (customer, #bind, value, environment) : [
+        	CREATE extended WITH binding(x, value, environment)
+            SEND extended TO customer
+        ]
+        END
+    ]
+
+### (Function) Application
+
+### (Lambda) Abstract
 
 
 ## Bit-Stream Transport
