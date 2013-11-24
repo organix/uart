@@ -341,7 +341,8 @@ Forward exactly one message.
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"send", "target":"delegate", "message":"_message" },
         { "action":"new", "type":"Array", "result":"behavior" },
-        { "action":"become", "behavior":"behavior" }
+        { "action":"literal", "value":"_behavior", "result":"key" },
+        { "action":"store", "struct":"_self", "key":"key", "value":"behavior" }
     ]
 
 
