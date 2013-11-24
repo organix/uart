@@ -600,10 +600,99 @@ For comparison, the equivalent Humus code would be:
         { "action":"jump", "label":"l_end" },
 
         { "action":"label", "name":"l_eval" },
-        { },
+        { "action":"literal", "value":"operator", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"behavior" },
+        { "action":"create", "behavior":"behavior", "result":"operator" },
+
+        { "action":"literal", "value":"formal", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"formal" },
+        { "action":"literal", "value":"formal", "result":"key" },
+        { "action":"store", "struct":"operator", "key":"key", "value":"formal" },
+
+        { "action":"literal", "value":"body", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"body" },
+        { "action":"literal", "value":"body", "result":"key" },
+        { "action":"store", "struct":"operator", "key":"key", "value":"body" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"operator", "key":"key", "value":"environment" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"formal" },
+        { "action":"send", "target":"customer", "message":"operator" },
         { "action":"jump", "label":"l_end" },
 
         { "action":"label", "name":"l_end" }
+    ],
+    "operator":[
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"action" },
+        { "action":"literal", "value":"apply", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "true":"l_apply" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_apply" },
+        { "action":"literal", "value":"lambda_k_bind", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"behavior" },
+        { "action":"create", "behavior":"behavior", "result":"k_bind" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"customer2" },
+        { "action":"literal", "value":"customer2", "result":"key" },
+        { "action":"store", "struct":"k_bind", "key":"key", "value":"customer2" },
+
+        { "action":"literal", "value":"body", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"body" },
+        { "action":"literal", "value":"body", "result":"key" },
+        { "action":"store", "struct":"k_bind", "key":"key", "value":"body" },
+
+        { "action":"new", "type":"Object", "result":"message" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"k_bind" },
+
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"bind", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+
+        { "action":"literal", "value":"argument", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"argument" },
+        { "action":"literal", "value":"value", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"argument" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"environment" },
+
+        { "action":"literal", "value":"formal", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"formal" },
+        { "action":"send", "target":"formal", "message":"message" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_end" }
+    ],
+    "lambda_k_bind":[
+        { "action":"new", "type":"Object", "result":"message" },
+
+        { "action":"literal", "value":"customer2", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"customer" },
+
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"_message" },
+
+        { "action":"literal", "value":"body", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"body" },
+        { "action":"send", "target":"body", "message":"message" }
     ]
 
 For comparison, the equivalent Humus code would be:
