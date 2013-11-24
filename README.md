@@ -473,6 +473,108 @@ For comparison, the equivalent Humus code would be:
 
 ### (Function) Application
 
+    "application":[
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"action" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "true":"l_eval" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_eval" },
+        { "action":"literal", "value":"application_k_oper", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"behavior" },
+        { "action":"create", "behavior":"behavior", "result":"k_oper" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"k_oper", "key":"key", "value":"customer" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"k_oper", "key":"key", "value":"environment" },
+
+        { "action":"literal", "value":"opnd_expr", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"opnd_expr" },
+        { "action":"literal", "value":"opnd_expr", "result":"key" },
+        { "action":"store", "struct":"k_oper", "key":"key", "value":"opnd_expr" },
+
+        { "action":"new", "type":"Object", "result":"message" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"k_oper" },
+
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"environment" },
+
+        { "action":"literal", "value":"opnd_expr", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"oper_expr" },
+        { "action":"send", "target":"oper_expr", "message":"message" }
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_end" }
+    ],
+    "application_k_oper":[
+        { "action":"literal", "value":"application_k_opnd", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"behavior" },
+        { "action":"create", "behavior":"behavior", "result":"k_opnd" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"k_opnd", "key":"key", "value":"customer" },
+
+        { "action":"literal", "value":"operator", "result":"key" },
+        { "action":"store", "struct":"k_opnd", "key":"key", "value":"_message" },
+
+        { "action":"new", "type":"Object", "result":"message" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"k_opnd" },
+
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"environment" },
+
+        { "action":"literal", "value":"opnd_expr", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"opnd_expr" },
+        { "action":"send", "target":"opnd_expr", "message":"message" }
+    ],
+    "application_k_opnd":[
+        { "action":"new", "type":"Object", "result":"message" },
+
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"customer" },
+        { "action":"literal", "value":"customer", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"customer" },
+
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"literal", "value":"apply", "result":"value" },
+        { "action":"store", "struct":"message", "key":"key", "value":"value" },
+
+        { "action":"literal", "value":"argument", "result":"key" },
+        { "action":"store", "struct":"message", "key":"key", "value":"_message" },
+
+        { "action":"literal", "value":"operator", "result":"key" },
+        { "action":"load", "struct":"_self", "key":"key", "result":"operator" },
+        { "action":"send", "target":"operator", "message":"message" }
+    ]
+
+For comparison, the equivalent Humus code would be:
+
     LET application(oper_expr, opnd_expr) = \_message.[
         CASE _message OF
         (customer, #eval, environment) : [
@@ -488,6 +590,23 @@ For comparison, the equivalent Humus code would be:
     ]
 
 ### (Lambda) Abstraction
+
+    "lambda":[
+        { "action":"literal", "value":"action", "result":"key" },
+        { "action":"load", "struct":"_message", "key":"key", "result":"action" },
+        { "action":"literal", "value":"eval", "result":"value" },
+        { "action":"compare", "this":"action", "that":"value", "equal":"equal" },
+        { "action":"if", "condition":"equal", "true":"l_eval" },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_eval" },
+        { },
+        { "action":"jump", "label":"l_end" },
+
+        { "action":"label", "name":"l_end" }
+    ]
+
+For comparison, the equivalent Humus code would be:
 
     LET lambda(formal, body) = \_message.[
         CASE _message OF
