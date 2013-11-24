@@ -249,7 +249,15 @@ and other structures.
 
     { "action":"create", "behavior":reg, "result":reg }
     { "action":"send", "target":reg, "message":reg }
-    { "action":"become", "behavior":reg }
+
+An actor is literally the structure 
+resulting from `"create"`
+and referenced by `_self`
+when a behavior executes.
+All `"store"` instructions into `_self`
+are effectively partial "become" primitives.
+An actor's current behavior
+is stored under the `"_behavior"` key in `_self`.
 
 ### Flow Control
 
@@ -286,7 +294,7 @@ We will use square-brackets as syntactic sugar for Array creation.
 
 A transparent forwarder simply sends any message it receives to a delegate.
 
-    [
+    "forward":[
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"send", "target":"delegate", "message":"_message" }
@@ -296,7 +304,7 @@ A transparent forwarder simply sends any message it receives to a delegate.
 
 A label is just a forwarder that wraps the message in an envelope.
 
-    [
+    "label":[
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"literal", "value":"label", "result":"key" },
@@ -313,7 +321,7 @@ A label is just a forwarder that wraps the message in an envelope.
 
 A tag uses the identity (address) of the current actor as a label.
 
-    [
+    "tag":[
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"new", "type":"Object", "result":"envelope" },
@@ -328,7 +336,7 @@ A tag uses the identity (address) of the current actor as a label.
 
 Forward exactly one message.
 
-    [
+    "one-shot":[
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"send", "target":"delegate", "message":"_message" },
@@ -349,7 +357,7 @@ A Binding responds to a `lookup` message by
 returning the bound `value` (if `name` matches),
 or delegating to the next `environment`.
 
-    [
+    "binding":[
         { "action":"literal", "value":"action", "result":"key" },
         { "action":"load", "struct":"_message", "key":"key", "result":"action" },
         { "action":"literal", "value":"lookup", "result":"value" },
@@ -371,15 +379,7 @@ or delegating to the next `environment`.
         { "action":"label", "name":"l_delegate" },
         { "action":"literal", "value":"environment", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"environment" },
-        { "action":"new", "type":"Object", "result":"message" },
-        { "action":"literal", "value":"customer", "result":"key" },
-        { "action":"store", "struct":"message", "key":"key", "value":"customer" },
-        { "action":"literal", "value":"action", "result":"key" },
-        { "action":"literal", "value":"lookup", "result":"value" },
-        { "action":"store", "struct":"message", "key":"key", "value":"value" },
-        { "action":"literal", "value":"name", "result":"key" },
-        { "action":"store", "struct":"message", "key":"key", "value":"name" },
-        { "action":"send", "target":"environment", "message":"message" },
+        { "action":"send", "target":"environment", "message":"_message" },
 
         { "action":"label", "name":"l_end" }
     ]
@@ -405,7 +405,7 @@ It responds to a `bind` message by
 extending the provided environment
 with a new binding.
 
-    [
+    "identifier":[
         { "action":"literal", "value":"x", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"x" },
         { "action":"literal", "value":"action", "result":"key" },
@@ -441,18 +441,15 @@ with a new binding.
         { "action":"load", "struct":"_message", "key":"key", "result":"value" },
         { "action":"literal", "value":"environment", "result":"key" },
         { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
-            { "action":"new", "type":"Array", "result":"behavior" },
-            { },
-            { "action":"literal", "value":"length", "result":"k_length" },
-                { "action":"new", "type":"Array", "result":"op" },
-                { "action":"literal", "value":"action", "result":"key" },
-                { "action":"literal", "value":"lookup", "result":"value" },
-                { "action":"store", "struct":"message", "key":"key", "value":"value" },
-                { },
-                { "action":"load", "struct":"behavior", "key":"k_length", "result":"length" },
-                { "action":"store", "struct":"behavior", "key":"length", "value":"op" },
-            { },
-            { "action":"create", "behavior":"behavior", "result":"extended" },
+        { "action":"literal", "value":"binding", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"behavior" },
+        { "action":"create", "behavior":"behavior", "result":"extended" },
+        { "action":"literal", "value":"x", "result":"key" },
+        { "action":"store", "struct":"extended", "key":"key", "value":"x" },
+        { "action":"literal", "value":"value", "result":"key" },
+        { "action":"store", "struct":"extended", "key":"key", "value":"value" },
+        { "action":"literal", "value":"environment", "result":"key" },
+        { "action":"store", "struct":"extended", "key":"key", "value":"environment" },
         { "action":"send", "target":"customer", "message":"extended" },
         { "action":"jump", "label":"l_end" },
 
