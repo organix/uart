@@ -166,8 +166,7 @@ The keys can be of any type, although strings are most common.
     { "action":"new", "type":reg, "result":reg }
 
 The `"new"` action creates a new structure value.
-THe `"type"` register contains a reference to the structure type.
-The structure type is specified by `"constructor"`.
+The `"type"` register contains a reference to the structure type.
 A reference to the new structure is stored 
 into the register named by `"result"`.
 
@@ -176,20 +175,12 @@ into the register named by `"result"`.
 The `"load"` action looks up `"key"` in `"struct"` 
 and stores the corresponding value into `"result"`.
 If `"key"` is not found in `"struct"`, then the value is `null`.
-The prototype/nested-scope chain is included in the search.
 
     { "action":"store", "struct":reg, "key":reg, "value":reg }
 
-The `"store"` action binds `"key"` to `"value"` directly in `"struct"`.
-If value is `null`, then `"key"` is effectively deleted.
-
-    { "action":"has", "struct":reg, "key":reg, "result":reg }
-
-The `"has"` action stores `true` in `"result"` 
-if `"struct"` has a direct binding for `"key"`.
-Otherwise `false` is stored in `"result"`.
-The prototype/nested-scope chain is not searched,
-so this action can distinguish direct from inherited keys.
+The `"store"` action binds `"key"` to `"value"` in `"struct"`.
+If value is `null`, then `"key"` is effectively deleted,
+since `null` is the "not found" value for `"load"`.
 
 ### Arrays
 
@@ -309,6 +300,8 @@ A label is just a forwarder that wraps the message in an envelope.
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"literal", "value":"label", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"label" },
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"envelope" },
         { "action":"literal", "value":"label", "result":"key" },
         { "action":"store", "struct":"envelope", "key":"key", "value":"label" },
@@ -324,6 +317,8 @@ A tag uses the identity (address) of the current actor as a label.
     "tag":[
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"envelope" },
         { "action":"literal", "value":"label", "result":"key" },
         { "action":"store", "struct":"envelope", "key":"key", "value":"_self" },
@@ -340,6 +335,8 @@ Forward exactly one message.
         { "action":"literal", "value":"delegate", "result":"key" },
         { "action":"load", "struct":"_self", "key":"key", "result":"delegate" },
         { "action":"send", "target":"delegate", "message":"_message" },
+        { "action":"literal", "value":"Array", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Array" },
         { "action":"new", "type":"Array", "result":"behavior" },
         { "action":"literal", "value":"_behavior", "result":"key" },
         { "action":"store", "struct":"_self", "key":"key", "value":"behavior" }
@@ -424,6 +421,8 @@ with a new binding.
         { "action":"load", "struct":"_message", "key":"key", "result":"customer" },
         { "action":"literal", "value":"environment", "result":"key" },
         { "action":"load", "struct":"_message", "key":"key", "result":"environment" },
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
         { "action":"literal", "value":"customer", "result":"key" },
         { "action":"store", "struct":"message", "key":"key", "value":"customer" },
@@ -501,6 +500,8 @@ For comparison, the equivalent Humus code would be:
         { "action":"literal", "value":"opnd_expr", "result":"key" },
         { "action":"store", "struct":"k_oper", "key":"key", "value":"opnd_expr" },
 
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
 
         { "action":"literal", "value":"customer", "result":"key" },
@@ -535,6 +536,8 @@ For comparison, the equivalent Humus code would be:
         { "action":"literal", "value":"operator", "result":"key" },
         { "action":"store", "struct":"k_opnd", "key":"key", "value":"_message" },
 
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
 
         { "action":"literal", "value":"customer", "result":"key" },
@@ -554,6 +557,8 @@ For comparison, the equivalent Humus code would be:
         { "action":"send", "target":"opnd_expr", "message":"message" }
     ],
     "application_k_opnd":[
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
 
         { "action":"literal", "value":"customer", "result":"key" },
@@ -649,6 +654,8 @@ For comparison, the equivalent Humus code would be:
         { "action":"literal", "value":"body", "result":"key" },
         { "action":"store", "struct":"k_bind", "key":"key", "value":"body" },
 
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
 
         { "action":"literal", "value":"customer", "result":"key" },
@@ -676,6 +683,8 @@ For comparison, the equivalent Humus code would be:
         { "action":"label", "name":"l_end" }
     ],
     "lambda_k_bind":[
+        { "action":"literal", "value":"Object", "result":"key" },
+        { "action":"load", "struct":"_sponsor", "key":"key", "result":"Object" },
         { "action":"new", "type":"Object", "result":"message" },
 
         { "action":"literal", "value":"customer2", "result":"key" },
